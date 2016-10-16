@@ -14,6 +14,8 @@ var grepword_key = require('./secrets').grepword_key;
 var app = express();
 app.use(bodyParser.json());
 
+var port = process.env.PORT || 8080;
+
 app.get('/test', function(req, res) {
   res.json({test: "Working app"})
 })
@@ -63,7 +65,5 @@ app.get('/suggest', function(req, res) {
 // **************************************************************
 
 
-
-var port = 3000;
 console.log('listening on port', port);
 app.listen(port);
