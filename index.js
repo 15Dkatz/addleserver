@@ -61,8 +61,70 @@ app.get('/suggest', function(req, res) {
     .catch(console.log);
 })
 
+
+app.post('/send_email', function(req, res) {
+  console.log('req.body', req.body.email);
+  // console.log('req.body', req.body);
+  var email = req.body.email;
+  var data_keywords = req.body.body.data_keywords;
+  var suggested_keywords = req.body.body.suggested_keywords;
+  var emailContent = "";
+
+  emailContent += "****\n"
+  Object.keys(data_keywords).forEach(function(keyword) {
+    var kw = data_keywords[keyword];
+    var keyword = kw.keyword;
+    emailContent += "\n Keyword: " + keyword;
+    var competition = kw.cmp;
+    emailContent += ",\n Competition: " + competition;
+    var cpc = kw.cpc;
+    emailContent += ",\n Cpc: " + cpc;
+    var ams = kw.ams;
+    emailContent += ",\n Average Monthly Searches: " + ams;
+  });
+  emailContent += "\n****\n";
+
+  emailContent += "****\n";
+  Object.keys(suggested_keywords).forEach(function(keyword) {
+
+    var kw = suggested_keywords[keyword];
+    var keyword = kw.term;
+    emailContent += "\n Keyword " + keyword;
+    var priority = kw.priority;
+    emailContent += ", \n Priority: " + priority;
+
+  })
+  emailContent += "\n****\n";
+
+  console.log('email content ', emailContent);
+
+  var helper = require('sendgrid').mail
+
+  from_email = new helper.Email("dtkatz@dons.usfca.edu")
+  to_email = new helper.Email(email)
+  subject = "Sending keywords"
+  content = new helper.Content("text/plain", "for your better marketing results! \n" + emailContent)
+  mail = new helper.Mail(from_email, subject, to_email, content)
+
+  var sg = require('sendgrid')('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');
+
+  var request = sg.emptyRequest({
+    method: 'POST',
+    path: '/v3/mail/send',
+    body: mail.toJSON()
+  });
+
+  sg.API(request, function(error, response) {
+    console.log(response.statusCode)
+    console.log(response.body)
+    console.log(response.headers)
+  })
+})
+
+
 // **************************************************************
 // **************************************************************
+
 
 
 console.log('listening on port', port);
