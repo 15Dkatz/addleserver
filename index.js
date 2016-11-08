@@ -61,6 +61,23 @@ app.get('/suggest', function(req, res) {
     .catch(console.log);
 })
 
+app.get('/search', function(req, res) {
+  var keyword = req.query.keyword;
+  console.log('keyword: ', keyword);
+
+  store.search({
+    term: keyword,
+    num: 100,
+    device: store.device.IOS
+  })
+  .then(function(response) {
+    console.log('res', response);
+    res.json(response);
+  })
+  .catch(console.log);
+})
+
+
 
 app.post('/send_email', function(req, res) {
   console.log('req.body', req.body.email);
