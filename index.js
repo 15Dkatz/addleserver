@@ -79,7 +79,7 @@ app.get('/search', function(req, res) {
 })
 
 
-// authentication
+// AUTHENTICATION
 var config = {
   apiKey: "AIzaSyBRzUr3dxejmn9zxx71Il5UTYYEuEkB_4Q",
   authDomain: "admuffin-556a3.firebaseapp.com",
@@ -115,6 +115,7 @@ app.post('/signup', function(req, res) {
       res.json(user);
     } else {
       console.log('user signed out');
+      setTimeout(res.json({result: 'user signed out'}), 5000);
     }
   })
 });
@@ -137,7 +138,7 @@ app.post('/signin', function(req, res) {
       console.log('user signed out');
     }
   })
-})
+});
 
 // reset password
 app.post('/reset_password', function(req, res) {
@@ -148,7 +149,7 @@ app.post('/reset_password', function(req, res) {
     }, (error) => {
       res.json({result: error.message})
     })
-})
+});
 
 // **************************************************************
 // **************************************************************
