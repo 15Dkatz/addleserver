@@ -6,6 +6,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var fetch = require('node-fetch');
 var store = require('app-store-scraper');
+var firebase = require('firebase');
 
 // API KEYS
 var grepword_key = require('./secrets').grepword_key;
@@ -26,7 +27,7 @@ app.get('/test', function(req, res) {
 // **************************************************************
 
 // usage:
-// http://localhost:3000/keyword?keyword=baseball
+// http://localhost:8080/keyword?keyword=baseball
 app.get('/keyword', function(req, res) {
   var keyword = req.query.keyword;
   console.log('keyword: ', keyword);
@@ -78,6 +79,79 @@ app.get('/search', function(req, res) {
 })
 
 
+// authentication
+var config = {
+  apiKey: "AIzaSyBRzUr3dxejmn9zxx71Il5UTYYEuEkB_4Q",
+  authDomain: "admuffin-556a3.firebaseapp.com",
+  databaseURL: "https://admuffin-556a3.firebaseio.com",
+  storageBucket: "admuffin-556a3.appspot.com",
+  messagingSenderId: "574531191456"
+};
+var firebaseApp = firebase.initializeApp(config);
+var auth = firebaseApp.auth();
+
+// registering
+app.post('/signup', function(req, res) {
+  console.log('req.body', req.body);
+  var email = req.body.email;
+  var password = req.body.password;
+
+  auth.createUserWithEmailAndPassword(email, password)
+    .catch(function(error) {
+    // Handle Errors
+    var errorCode = error.code;
+    var errorMessage = error.message;
+    if (errorCode == 'auth/weak-password') {
+      console.log('The password is too weak.');
+    } else {
+      console.log(errorMessage);
+    }
+    console.log(error);
+  });
+
+  auth.onAuthStateChanged(function(user) {
+    if (user) {
+      console.log('signed in');
+      res.json(user);
+    } else {
+      console.log('user signed out');
+    }
+  })
+});
+
+// login
+app.post('/signin', function(req, res) {
+  var email = req.body.email;
+  var password = req.body.password;
+
+  auth.signInWithEmailAndPassword(email, password)
+    .catch(error => {
+      console.log('error:', error.message);
+    });
+
+  auth.onAuthStateChanged(function(user) {
+    if (user) {
+      console.log('signed in');
+      res.json(user);
+    } else {
+      console.log('user signed out');
+    }
+  })
+})
+
+// reset password
+app.post('/reset_password', function(req, res) {
+  var email = req.body.email;
+  auth.sendPasswordResetEmail(email)
+    .then(() => {
+      res.json({result: 'Password reset sent successfully.'});
+    }, (error) => {
+      res.json({result: error.message})
+    })
+})
+
+// **************************************************************
+// **************************************************************
 
 app.post('/send_email', function(req, res) {
   console.log('req.body', req.body.email);
@@ -141,8 +215,6 @@ app.post('/send_email', function(req, res) {
 
 // **************************************************************
 // **************************************************************
-
-
 
 console.log('listening on port', port);
 app.listen(port);
