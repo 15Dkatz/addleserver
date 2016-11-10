@@ -102,9 +102,9 @@ app.post('/signup', function(req, res) {
     var errorCode = error.code;
     var errorMessage = error.message;
     if (errorCode == 'auth/weak-password') {
-      console.log('The password is too weak.');
+      res.json('The password is too weak.');
     } else {
-      console.log(errorMessage);
+      res.json(errorMessage);
     }
     console.log(error);
   });
