@@ -23,11 +23,7 @@ app.get('/test', function(req, res) {
 
 
 // **************************************************************
-// OUR API
-// **************************************************************
 
-// usage:
-// http://localhost:8080/keyword?keyword=baseball
 app.get('/keyword', function(req, res) {
   var keyword = req.query.keyword;
   console.log('keyword: ', keyword);
@@ -47,8 +43,6 @@ app.get('/keyword', function(req, res) {
     })
 })
 
-// usage:
-// http://localhost:3000/suggest?keyword=baseball
 app.get('/suggest', function(req, res) {
   var keyword = req.query.keyword;
   console.log('keyword: ', keyword);
@@ -97,27 +91,25 @@ app.post('/signup', function(req, res) {
   var password = req.body.password;
 
   auth.createUserWithEmailAndPassword(email, password)
+    .then(function(user) {
+      if (user) {
+        console.log('signed in');
+        res.json(user);
+      } else {
+        console.log('user signed out');
+      }
+    })
     .catch(function(error) {
     // Handle Errors
     var errorCode = error.code;
     var errorMessage = error.message;
     if (errorCode == 'auth/weak-password') {
-      res.json('The password is too weak.');
+      res.json({'error': 'The password is too weak.'});
     } else {
-      res.json(errorMessage);
+      res.json({'error': errorMessage});
     }
-    console.log(error);
+    res.json({'error': error});
   });
-
-  auth.onAuthStateChanged(function(user) {
-    if (user) {
-      console.log('signed in');
-      res.json(user);
-    } else {
-      console.log('user signed out');
-      setTimeout(res.json({result: 'user signed out'}), 5000);
-    }
-  })
 });
 
 // login
@@ -126,18 +118,17 @@ app.post('/signin', function(req, res) {
   var password = req.body.password;
 
   auth.signInWithEmailAndPassword(email, password)
+    .then(function(user) {
+      if (user) {
+        console.log('signed in');
+        res.json(user);
+      } else {
+        console.log('user signed out');
+      }
+    })
     .catch(error => {
-      console.log('error:', error.message);
+      res.json({'error': error.message});
     });
-
-  auth.onAuthStateChanged(function(user) {
-    if (user) {
-      console.log('signed in');
-      res.json(user);
-    } else {
-      console.log('user signed out');
-    }
-  })
 });
 
 // reset password
@@ -151,7 +142,6 @@ app.post('/reset_password', function(req, res) {
     })
 });
 
-// **************************************************************
 // **************************************************************
 
 app.post('/send_email', function(req, res) {
@@ -214,7 +204,6 @@ app.post('/send_email', function(req, res) {
 })
 
 
-// **************************************************************
 // **************************************************************
 
 console.log('listening on port', port);
