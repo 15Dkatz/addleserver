@@ -108,6 +108,31 @@ app.get('/rankings', function(req, res) {
     })
 })
 
+app.get('/searchapps', function(req, res) {
+  var keyword = req.query.keyword;
+  var ma_key = '055b006e-711b-4575-a879-030a3b218881';
+
+  console.log('searching for apps with keyword', keyword);
+  var request = {
+    "async": true,
+    "crossDomain": true,
+    "url": 'https://insights.mobileaction.co/v3/store/ios/app/389801252/top-apps?region=US&device=iphone&keyword=' + keyword + '&apiKey=' + ma_key,
+    "method": "GET",
+    "headers": {
+      "content-type": "application/json",
+      "cache-control": "no-cache"
+    }
+  };
+
+
+  fetch(request.url, {method: request.method, headers: request.headers})
+    .then(function(res) {
+      return res.json();
+    }).then(function(json) {
+      res.json(json);
+    })
+})
+
 
 // AUTHENTICATION
 var config = {
