@@ -79,6 +79,36 @@ app.get('/search', function(req, res) {
     .catch(console.log);
 })
 
+app.get('/rankings', function(req, res) {
+  console.log('looking for rankings');
+  var mydate = new Date(Date.now()).toLocaleString();
+  month = mydate.slice(0, 2);
+  day = mydate.slice(3, 5);
+  console.log('mydate', mydate);
+
+  var request = {
+    method: 'GET',
+    url: 'https://sensortower.com/api/ios/rankings/get_category_rankings',
+    data: {
+      "date": "2016-" + month + "-" + day + "T00:00:00.000Z",
+      "hour": null,
+      "category": 0,
+      "identifier": "IPHONE",
+      "country": "US",
+      "offset": 0,
+      "limit": 50
+    }
+  }
+
+  fetch(request.url, {method: request.method, data: request.data})
+    .then(function(res) {
+      return res.json();
+    }).then(function(json) {
+      // grepwords returns 100 related words by default but there is still a way to limit it.
+      res.json(json);
+    })
+})
+
 
 // AUTHENTICATION
 var config = {
