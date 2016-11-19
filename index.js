@@ -104,7 +104,6 @@ app.get('/rankings', function(req, res) {
     .then(function(res) {
       return res.json();
     }).then(function(json) {
-      // grepwords returns 100 related words by default but there is still a way to limit it.
       res.json(json);
     })
 })
