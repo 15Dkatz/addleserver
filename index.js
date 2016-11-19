@@ -14,11 +14,18 @@ var grepword_key = require('./secrets').grepword_key;
 // APP
 var app = express();
 app.use(bodyParser.json());
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 
 var port = process.env.PORT || 8080;
 
 app.get('/test', function(req, res) {
-  res.json({test: "Working app"})
+  res.json({
+    test: "Working app"
+  })
 })
 
 
@@ -61,15 +68,15 @@ app.get('/search', function(req, res) {
   console.log('keyword: ', keyword);
 
   store.search({
-    term: keyword,
-    num: 100,
-    device: store.device.IOS
-  })
-  .then(function(response) {
-    console.log('res', response);
-    res.json(response);
-  })
-  .catch(console.log);
+      term: keyword,
+      num: 100,
+      device: store.device.IOS
+    })
+    .then(function(response) {
+      console.log('res', response);
+      res.json(response);
+    })
+    .catch(console.log);
 })
 
 
@@ -100,16 +107,22 @@ app.post('/signup', function(req, res) {
       }
     })
     .catch(function(error) {
-    // Handle Errors
-    var errorCode = error.code;
-    var errorMessage = error.message;
-    if (errorCode == 'auth/weak-password') {
-      res.json({'error': 'The password is too weak.'});
-    } else {
-      res.json({'error': errorMessage});
-    }
-    res.json({'error': error});
-  });
+      // Handle Errors
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      if (errorCode == 'auth/weak-password') {
+        res.json({
+          'error': 'The password is too weak.'
+        });
+      } else {
+        res.json({
+          'error': errorMessage
+        });
+      }
+      res.json({
+        'error': error
+      });
+    });
 });
 
 // login
@@ -127,7 +140,9 @@ app.post('/signin', function(req, res) {
       }
     })
     .catch(error => {
-      res.json({'error': error.message});
+      res.json({
+        'error': error.message
+      });
     });
 });
 
@@ -136,9 +151,13 @@ app.post('/reset_password', function(req, res) {
   var email = req.body.email;
   auth.sendPasswordResetEmail(email)
     .then(() => {
-      res.json({result: 'Password reset sent successfully.'});
+      res.json({
+        result: 'Password reset sent successfully.'
+      });
     }, (error) => {
-      res.json({result: error.message})
+      res.json({
+        result: error.message
+      })
     })
 });
 
@@ -203,8 +222,9 @@ app.post('/send_email', function(req, res) {
   })
 })
 
-
 // **************************************************************
+
+
 
 console.log('listening on port', port);
 app.listen(port);
