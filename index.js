@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var fetch = require('node-fetch');
 var store = require('app-store-scraper');
 var firebase = require('firebase');
+var stripe = require('stripe')("sk_test_wtNT0gFds1Zksd1blS6irR2b"); // change to live key in production: sk_live_g0c4aSKtwtMOeXomAFTmTYnA
 
 // API KEYS
 var grepword_key = require('./secrets').grepword_key;
@@ -173,9 +174,6 @@ app.post('/signup', function(req, res) {
           'error': errorMessage
         });
       }
-      res.json({
-        'error': error
-      });
     });
 });
 
@@ -214,6 +212,42 @@ app.post('/reset_password', function(req, res) {
       })
     })
 });
+
+
+app.post('/stripe_subscription', function(req, res) {
+  var token = req.body.token;
+  var email = req.body.email;
+
+  console.log('token', token);
+  console.log('email', email);
+
+  stripe.customers.create({
+    description: 'Customer for ' + email,
+    source: token
+  }, function(err, customer) {
+    if (err) {
+      console.log('err', err);
+      res.json(err)
+    };
+    if (customer) {
+      console.log('new stripe customer', customer);
+      var customer_id = customer.id;
+      stripe.subscriptions.create({
+        customer: customer_id,
+        plan: 'silver-freelance-510',
+        trial_period_days: 7
+      }, function(err, subscription) {
+        if (err) { console.log('sub err', err); res.json(err) };
+        if (subscription) {
+          console.log('stripe subscription created', subscription);
+          res.json({message: 'Subscription created! You have a free trial of 7 days, and you will start being billed $9.99 per month.'});
+        }
+      })
+    }
+
+  })
+});
+
 
 // **************************************************************
 

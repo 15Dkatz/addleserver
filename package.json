@@ -15,6 +15,7 @@
     "express": "^4.14.0",
     "firebase": "^3.6.0",
     "node-fetch": "^1.6.3",
-    "sendgrid": "^4.7.1"
+    "sendgrid": "^4.7.1",
+    "stripe": "^4.13.0"
   }
 }
