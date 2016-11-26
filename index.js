@@ -7,10 +7,12 @@ var bodyParser = require('body-parser');
 var fetch = require('node-fetch');
 var store = require('app-store-scraper');
 var firebase = require('firebase');
-var stripe = require('stripe')("sk_test_wtNT0gFds1Zksd1blS6irR2b"); // change to live key in production: sk_live_g0c4aSKtwtMOeXomAFTmTYnA
 
 // API KEYS
 var grepword_key = require('./secrets').grepword_key;
+var stripe_key = require('./secrets').stripe_key;
+
+var stripe = require('stripe')(stripe_key); // change to live key in production: sk_live_g0c4aSKtwtMOeXomAFTmTYnA
 
 // APP
 var app = express();
@@ -64,7 +66,7 @@ app.get('/suggest', function(req, res) {
     .catch(console.log);
 })
 
-app.get('/search', function(req, res) {
+app.get('/also_searched', function(req, res) {
   var keyword = req.query.keyword;
   console.log('keyword: ', keyword);
 
@@ -74,8 +76,18 @@ app.get('/search', function(req, res) {
       device: store.device.IOS
     })
     .then(function(response) {
-      console.log('res', response);
-      res.json(response);
+      var best_app = response[0];
+
+      if (best_app) {
+        console.log('best_app', best_app);
+        store.similar({id: best_app.id}).then(function(response) {
+          console.log('response', response);
+          res.json(response);
+        }).catch(console.log);
+
+      } else {
+        res.json({message: "error getting an app from the keyword search of " + keyword});
+      }
     })
     .catch(console.log);
 })
