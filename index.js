@@ -260,6 +260,13 @@ app.post('/stripe_subscription', function(req, res) {
   })
 });
 
+app.post('/competition_report', function(req, res) {
+  var email = req.body.email;
+  var date = req.body.date;
+  var app = req.body.app;
+  console.log('email', email, 'date', date, 'app', app);
+})
+
 
 // **************************************************************
 
