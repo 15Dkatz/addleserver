@@ -8,11 +8,12 @@ var fetch = require('node-fetch');
 var store = require('app-store-scraper');
 var firebase = require('firebase');
 
+// slack
+var IncomingWebhook = require('@slack/client').IncomingWebhook;
+
+var slack_url = 'https://hooks.slack.com/services/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';
 // API KEYS
 var grepword_key = require('./secrets').grepword_key;
-var stripe_key = require('./secrets').stripe_key;
-
-var stripe = require('stripe')(stripe_key); // change to live key in production: sk_live_g0c4aSKtwtMOeXomAFTmTYnA
 
 // APP
 var app = express();
@@ -226,45 +227,22 @@ app.post('/reset_password', function(req, res) {
 });
 
 
-app.post('/stripe_subscription', function(req, res) {
-  var token = req.body.token;
-  var email = req.body.email;
-
-  console.log('token', token);
-  console.log('email', email);
-
-  stripe.customers.create({
-    description: 'Customer for ' + email,
-    source: token
-  }, function(err, customer) {
-    if (err) {
-      console.log('err', err);
-      res.json(err)
-    };
-    if (customer) {
-      console.log('new stripe customer', customer);
-      var customer_id = customer.id;
-      stripe.subscriptions.create({
-        customer: customer_id,
-        plan: 'silver-freelance-510',
-        trial_period_days: 7
-      }, function(err, subscription) {
-        if (err) { console.log('sub err', err); res.json(err) };
-        if (subscription) {
-          console.log('stripe subscription created', subscription);
-          res.json({message: 'Subscription created! You have a free trial of 7 days, and you will start being billed $9.99 per month.'});
-        }
-      })
-    }
-
-  })
-});
-
 app.post('/competition_report', function(req, res) {
   var email = req.body.email;
   var date = req.body.date;
   var app = req.body.app;
-  console.log('email', email, 'date', date, 'app', app);
+  var requestString = 'Report ALERT!\nEmail: ' + email + '\nDate: ' + date + '\nApp name: ' + app;
+  console.log('requestString', requestString);
+
+  var webhook = new IncomingWebhook(slack_url);
+  webhook.send(requestString, function(err, res) {
+    if (err) {
+      console.log('Error:', err);
+    } else {
+      console.log('Message sent: ', res);
+    }
+  })
+
 })
 
 
