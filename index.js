@@ -11,7 +11,8 @@ var firebase = require('firebase');
 // slack
 var IncomingWebhook = require('@slack/client').IncomingWebhook;
 
-var slack_url = 'https://hooks.slack.com/services/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';
+var new_user_url = 'https://hooks.slack.com/services/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'; // TODO fill in with slack
+var competition_report_url = 'https://hooks.slack.com/services/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';
 // API KEYS
 var grepword_key = require('./secrets').grepword_key;
 
@@ -188,6 +189,17 @@ app.post('/signup', function(req, res) {
         });
       }
     });
+
+    var webhook = new IncomingWebhook(new_user_url);
+    var requestString = "New user!\nemail:" + email;
+    // notify slackvar webhook = new IncomingWebhook(competition_report_url);
+    webhook.send(requestString, function(err, res) {
+      if (err) {
+        console.log('Error:', err);
+      } else {
+        console.log('Message sent: ', res);
+      }
+    })
 });
 
 // login
@@ -234,7 +246,7 @@ app.post('/competition_report', function(req, res) {
   var requestString = 'Report ALERT!\nEmail: ' + email + '\nDate: ' + date + '\nApp name: ' + app;
   console.log('requestString', requestString);
 
-  var webhook = new IncomingWebhook(slack_url);
+  var webhook = new IncomingWebhook(competition_report_url);
   webhook.send(requestString, function(err, res) {
     if (err) {
       console.log('Error:', err);
